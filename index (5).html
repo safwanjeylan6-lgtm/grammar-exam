@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grammar Exam</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b1f2a;--mu:#5d6577;--ac:#4f46e5;--ok:#15803d;--bad:#b91c1c;--bd:#dfe2ec}
+@media (prefers-color-scheme:dark){:root{--bg:#12141b;--card:#1c1f2a;--tx:#e8eaf2;--mu:#9aa2b6;--ac:#8b86ff;--ok:#4ade80;--bad:#f87171;--bd:#2d3243}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:1.35rem;margin:8px 0 4px}h2{font-size:1.1rem}
+.sub{color:var(--mu);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+input[type=text],input[type=email],input[type=password]{width:100%;padding:12px;font-size:1rem;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);margin-bottom:8px}
+button{font:inherit;border:0;border-radius:10px;padding:12px 18px;background:var(--ac);color:#fff;font-weight:600;cursor:pointer;width:100%;margin-top:6px}
+button.alt{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+.q{font-weight:600;margin:0 0 8px}.q span{color:var(--mu);font-weight:500}
+label.o{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--bd);border-radius:10px;margin-top:6px;cursor:pointer}
+label.sel{border-color:var(--ac)}
+label.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+label.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.bar{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5;font-size:.9rem;color:var(--mu)}
+.big{font-size:2.4rem;font-weight:800;text-align:center;margin:4px 0}
+.hide{display:none}.err{color:var(--bad)}.ok-t{color:var(--ok)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+tr.row{cursor:pointer}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.82rem;font-weight:600}
+.good{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.weak{background:color-mix(in srgb,var(--bad) 20%,transparent);color:var(--bad)}
+.mid{background:color-mix(in srgb,#d97706 22%,transparent);color:#d97706}
+.det{white-space:normal;font-size:.9rem;color:var(--mu)}
+.qcard{background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 18%,var(--card)),var(--card));border-left:4px solid var(--ac)}
+.qlab{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);font-weight:700;margin-bottom:6px}
+.qtext{font-size:1.08rem;font-weight:600;margin:0 0 6px;line-height:1.45}
+.qauth{margin:0;color:var(--mu);font-size:.92rem}
+select{width:100%;padding:12px;font-size:1rem;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);margin-bottom:8px}
+.pp{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--bd);flex-wrap:wrap}
+.pa{display:flex;gap:8px}
+a.lb{padding:8px 12px;border-radius:10px;border:1px solid var(--ac);color:var(--ac);text-decoration:none;font-weight:600;font-size:.9rem}
+a.lb.fill{background:var(--ac);color:#fff}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ================= STUDENT ================= -->
+<div id="student">
+<h1>English Grammar Exam</h1>
+<p class="sub" id="sub"></p>
+<section id="quote" class="card qcard"><div class="qlab">Quote of the day</div><p class="qtext" id="qt"></p><p class="qauth" id="qa"></p></section>
+<section id="start" class="card">
+  <label for="nm">Your full name</label>
+  <input id="nm" type="text" maxlength="60" placeholder="Type your name" autocomplete="name">
+  <p id="nmErr" class="err hide">Please type your name first.</p>
+  <button id="go">Start exam</button>
+</section>
+<section id="papers" class="card">
+  <h2 style="margin-top:0">University Past Papers</h2>
+  <p class="sub">Free for everyone. Choose a course, then open or download a paper.</p>
+  <select id="pcourse" class="hide" aria-label="Course"></select>
+  <input id="psearch" type="text" class="hide" placeholder="Search papers…" maxlength="60">
+  <div id="plist"><p class="sub">Loading papers…</p></div>
+</section>
+<section id="exam" class="hide">
+  <div class="bar" id="bar"></div>
+  <div id="qs"></div>
+  <button id="submit">Submit exam</button>
+  <p id="subErr" class="err hide"></p>
+</section>
+<section id="res" class="hide">
+  <div class="card" style="text-align:center">
+    <div class="big ok-t">✓</div>
+    <p id="resMsg" class="q" style="margin:8px 0"></p>
+    <button id="retry" class="hide">Try again</button>
+  </div>
+</section>
+</div>
+
+<!-- ================= TEACHER ================= -->
+<div id="teacher" class="hide">
+<h1>Teacher dashboard</h1>
+<section id="login" class="card">
+  <input id="em" type="email" placeholder="Teacher email" autocomplete="username">
+  <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="li">Log in</button>
+  <p id="liErr" class="err hide"></p>
+</section>
+<section id="dash" class="hide">
+  <div class="card" id="summary"></div>
+  <div class="card"><h2 style="margin-top:0">Class strengths &amp; weaknesses</h2><div id="topics"></div></div>
+  <div class="card"><h2 style="margin-top:0">Most-missed questions</h2><div id="hard"></div></div>
+  <div class="card"><h2 style="margin-top:0">Students <span class="sub">(tap a row for details)</span></h2>
+    <div class="scroll"><table id="tbl"></table></div>
+    <button id="csv" class="alt">Download CSV</button>
+    <button id="out" class="alt">Log out</button>
+  </div>
+</section>
+</div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
+<script>
+// ====== 1) PUT YOUR SUPABASE DETAILS HERE ======
+var SUPABASE_URL="https://woqykmfycsthhncmoaes.supabase.co";
+var SUPABASE_KEY="sb_publishable_VhzuWi54UZFDDd7TltxhmA_iW2anz5-";
+// ===============================================
+var TITLE="English Grammar Exam";
+var WEAK=60, STRONG=80; // % thresholds
+
+// [topic, question, correct answer, ...wrong answers]
+var Q=[
+["Modal verbs", "She ______ swim very well.", "is can", "can", "can to", "cans"],
+["Modal verbs", "You ______ be quiet in the library.", "must to", "to must", "musting", "must"],
+["Modal verbs", "______ I borrow your pen, please?", "Am", "Can", "Do", "Does"],
+["Modal verbs", "I ______ lift this box. It is too heavy.", "am can", "can’t", "can", "don’t can"],
+["Modal verbs", "Choose the correct sentence.", "She cans sing.", "She can sings.", "She can to sing.", "She can sing."],
+["Modal verbs", "You ______ smoke here. It is forbidden.", "can", "needn’t", "will", "mustn’t"],
+["Modal verbs", "It is cloudy. It ______ rain later.", "musting", "mights", "might", "might to"],
+["Modal verbs", "Which modal verb shows ability?", "must", "might", "can", "should"],
+["Modal verbs", "Which question is correct?", "Can she drives?", "Can she drive?", "She can drive?", "Does she can drive?"],
+["Modal verbs", "We ______ hurry. The bus is leaving.", "must", "mustn’t", "can’t", "needn’t"],
+["Modal verbs", "You ______ come to the party if you don’t want to. It is optional.", "don’t have to", "can’t", "won’t", "mustn’t"],
+["Modal verbs", "She ______ be at home. Her car is outside.", "needn’t", "must", "can’t", "mustn’t"],
+["Modal verbs", "He ______ be the thief. He was in another city that night.", "ought", "must", "can’t", "should"],
+["Modal verbs", "Students ______ wear uniforms. It is the school rule.", "can", "might", "could", "have to"],
+["Modal verbs", "You ______ see a doctor. That cough is serious.", "had better", "had better to", "have better", "better to"],
+["Modal verbs", "______ you pass me the salt, please?", "Could", "Are", "Do", "Have"],
+["Modal verbs", "When I was young, I ______ run very fast.", "must", "can", "could", "should"],
+["Modal verbs", "You ______ take an umbrella. It may rain.", "must to", "should to", "ought to", "ought"],
+["Modal verbs", "She ______ come tonight, but she isn’t sure.", "might", "has to", "had better to", "must"],
+["Modal verbs", "I ______ finish this today. The deadline is tomorrow.", "needn’t", "have to", "might not", "can’t"],
+["Modal verbs", "You ______ have told me earlier. Now it is too late.", "can", "will", "should", "shall"],
+["Modal verbs", "He ______ have forgotten the meeting. He is never late.", "needn’t", "can’t", "mustn’t", "won’t"],
+["Modal verbs", "The lights are off. They ______ gone to bed.", "must be", "must has", "must have", "should to have"],
+["Modal verbs", "You ______ have bought milk. We already had some.", "mustn’t", "needn’t", "can’t", "wouldn’t"],
+["Modal verbs", "Which sentence expresses a past possibility?", "He might to have missed the bus.", "He may missed the bus.", "He might miss the bus yesterday.", "He might have missed the bus."],
+["Modal verbs", "Which sentence is incorrect?", "She had better leave now.", "She musts leave now.", "She must leave now.", "She has to leave now."],
+["Modal verbs", "You ______ lock the door. I have already done it.", "don’t need to", "couldn’t", "can’t", "mustn’t"],
+["Modal verbs", "He ______ have studied harder. He failed the test.", "shall", "will", "should", "can"],
+["Modal verbs", "The sign says ‘No Parking’. It means you ______ park here.", "mustn’t", "don’t have to", "needn’t", "might not"],
+["Modal verbs", "Which sentence expresses the strongest obligation?", "You could submit it today.", "You must submit it today.", "You may submit it today.", "You might submit it today."],
+["Simple present", "She ______ to school every day.", "go", "going", "gone", "goes"],
+["Simple present", "I ______ coffee every morning.", "drank", "drinks", "drink", "drinking"],
+["Simple present", "They ______ football on Saturdays.", "plays", "playing", "played", "play"],
+["Simple present", "He ______ English well.", "speak", "speaking", "speaks", "spoke"],
+["Simple present", "The sun ______ in the east.", "rises", "rising", "rise", "rose"],
+["Simple present", "______ you like tea?", "Are", "Do", "Does", "Did"],
+["Simple present", "She ______ not like milk.", "do", "is", "does", "did"],
+["Simple present", "Choose the correct sentence.", "My brother working in a bank.", "My brother works in a bank.", "My brother work in a bank.", "My brother is work in a bank."],
+["Simple present", "Water ______ at 100°C.", "boils", "boiling", "boil", "boiled"],
+["Simple present", "We ______ breakfast at 7 o’clock.", "having", "had", "has", "have"],
+["Simple present", "He ______ study on Sundays.", "doesn’t", "isn’t", "don’t", "not"],
+["Simple present", "______ your sister live in Jimma?", "Do", "Did", "Is", "Does"],
+["Simple present", "The bus ______ at 8:30 every day.", "left", "leaves", "leaving", "leave"],
+["Simple present", "Which word is a signal word for the simple present?", "usually", "last week", "already", "yesterday"],
+["Simple present", "She ______ her homework after dinner.", "done", "doing", "does", "do"],
+["Simple present", "My father ______ to work by bus.", "going", "go", "gos", "goes"],
+["Simple present", "Cats ______ meat.", "ate", "eats", "eating", "eat"],
+["Simple present", "He never ______ late.", "comes", "coming", "come", "came"],
+["Simple present", "The simple present is used for:", "actions with present results", "plans for next year only", "habits and general facts", "actions finished yesterday"],
+["Simple present", "How often do you ______ the gym?", "visits", "visited", "visit", "visiting"],
+["Simple present", "She ______ her teeth twice a day.", "brushs", "brushes", "brushing", "brush"],
+["Simple present", "My sister ______ spicy food. (negative)", "doesn’t eats", "isn’t eat", "don’t eat", "doesn’t eat"],
+["Simple present", "Which sentence uses the simple present for a timetable?", "The train has left at 6 p.m.", "The train leaving at 6 p.m.", "The train leaves at 6 p.m. tomorrow.", "The train left at 6 p.m. tomorrow."],
+["Simple present", "Which sentence has a mistake?", "They don’t like fish.", "He doesn’t like fish.", "I don’t like fish.", "He don’t like fish."],
+["Simple present", "Where ______ your parents work?", "do", "did", "are", "does"],
+["Simple present", "My teacher always ______ us homework on Fridays.", "gave", "gives", "give", "giving"],
+["Simple present", "Water ______ when it reaches 0°C.", "freezing", "freezes", "froze", "freeze"],
+["Simple present", "Which question is correct?", "Do he work here?", "Is he work here?", "Does he work here?", "Does he works here?"],
+["Simple present", "Nobody ______ the answer.", "knows", "known", "knowing", "know"],
+["Simple present", "Add -es to verbs that end in:", "-m, -n, -p", "-s, -sh, -ch, -x, -o", "-a, -e, -i", "-b, -d, -g"],
+["Present perfect", "I ______ my homework.", "has finished", "am finish", "have finished", "finishing"],
+["Present perfect", "She ______ her keys.", "has lost", "have lost", "lose", "losted"],
+["Present perfect", "They ______ lunch already.", "have eaten", "eat", "have ate", "has eaten"],
+["Present perfect", "The past participle of ‘go’ is:", "gone", "goed", "going", "went"],
+["Present perfect", "The past participle of ‘write’ is:", "writing", "wrote", "writed", "written"],
+["Present perfect", "______ you ever visited Addis Ababa?", "Do", "Has", "Did", "Have"],
+["Present perfect", "He ______ his work yet.", "hasn’t finished", "doesn’t finished", "didn’t finished", "haven’t finished"],
+["Present perfect", "We ______ here for two years.", "are live", "living", "has lived", "have lived"],
+["Present perfect", "The formula of the present perfect is:", "have/has + V3", "will + V1", "do/does + V1", "was/were + V-ing"],
+["Present perfect", "She has never ______ to Hawassa.", "be", "been", "being", "was"],
+["Present perfect", "I ______ English since 2022.", "have studied", "studies", "study", "am studying"],
+["Present perfect", "He has lived here ______ ten years.", "from", "at", "since", "for"],
+["Present perfect", "She has worked here ______ 2019.", "from", "for", "since", "during"],
+["Present perfect", "Which word is NOT used with the present perfect?", "yesterday", "ever", "already", "just"],
+["Present perfect", "The bus ______ yet.", "hasn’t arrived", "didn’t arrived", "haven’t arrived", "hasn’t arrive"],
+["Present perfect", "We have just ______ the exam.", "finishing", "finishes", "finish", "finished"],
+["Present perfect", "Has she arrived ______?", "ago", "yet", "yesterday", "last night"],
+["Present perfect", "He ______ to Dire Dawa twice.", "is been", "have been", "has been", "being"],
+["Present perfect", "I ______ my wallet, so I can’t pay.", "losing", "has lost", "am lost", "have lost"],
+["Present perfect", "‘She has gone to Jimma’ means:", "She will never go to Jimma.", "She is not here now. She went to Jimma.", "She has returned from Jimma.", "She went to Jimma last year."],
+["Present perfect", "Which sentence is correct?", "She have already left.", "She has already left.", "She has already leaved.", "She has already leave."],
+["Present perfect", "How long have you ______ here?", "been", "be", "being", "was"],
+["Present perfect", "This is the best film I have ever ______.", "saw", "seen", "see", "seeing"],
+["Present perfect", "The teacher ______ us three assignments so far.", "has gave", "giving", "has given", "have given"],
+["Present perfect", "Which sentence is wrong?", "I have already seen him.", "I have seen him before.", "I have seen him yesterday.", "I saw him yesterday."],
+["Present perfect", "They ______ the project. It is ready now.", "will completed", "has completed", "completing", "have completed"],
+["Present perfect", "She hasn’t called me ______.", "ago", "yesterday", "yet", "already"],
+["Present perfect", "‘I have never eaten sushi’ means:", "I will eat sushi tomorrow.", "I have no experience of eating sushi.", "I ate sushi once.", "I eat sushi every day."],
+["Present perfect", "Which question is correct?", "Has he ever met the minister?", "Has he ever meet the minister?", "Did he ever met the minister?", "Have he ever met the minister?"],
+["Present perfect", "The present perfect of ‘take’ with ‘she’ is:", "have taken", "has taking", "has taken", "has took"],
+["Simple present vs. present perfect", "She ______ to school every day. (habit)", "goes", "go", "gone", "has gone"],
+["Simple present vs. present perfect", "Which is a signal word for the present perfect?", "usually", "already", "always", "every day"],
+["Simple present vs. present perfect", "Which is a signal word for the simple present?", "usually", "just", "already", "yet"],
+["Simple present vs. present perfect", "I ______ eggs every morning.", "eat", "eats", "have eaten", "ate"],
+["Simple present vs. present perfect", "I ______ breakfast already.", "am eat", "have eaten", "eat", "eats"],
+["Simple present vs. present perfect", "‘Just’ usually signals:", "a rule", "the simple present", "a habit", "the present perfect"],
+["Simple present vs. present perfect", "He ______ football on Sundays.", "plays", "have played", "play", "has played"],
+["Simple present vs. present perfect", "She has just ______.", "arrives", "arrived", "arrive", "arriving"],
+["Simple present vs. present perfect", "Which sentence shows a habit?", "He drinks tea every day.", "He has drunk tea.", "He has drunk tea already.", "He has just drunk tea."],
+["Simple present vs. present perfect", "Which sentence shows an experience up to now?", "I have visited Jimma.", "I am visit Jimma.", "I visit Jimma every year.", "I visits Jimma."],
+["Simple present vs. present perfect", "My father ______ in a bank. (his job)", "is worked", "work", "has worked", "works"],
+["Simple present vs. present perfect", "My father ______ in this bank for ten years.", "work", "has worked", "works", "is worked"],
+["Simple present vs. present perfect", "Which statement is true?", "‘Usually’ is common with the present perfect.", "‘Every day’ is common with the present perfect.", "‘For’ and ‘since’ are common with the present perfect.", "‘Yesterday’ is common with the present perfect."],
+["Simple present vs. present perfect", "He usually ______ late.", "have arrived", "has arrived", "arrives", "arrive"],
+["Simple present vs. present perfect", "She has already ______ the report.", "writes", "wrote", "written", "write"],
+["Simple present vs. present perfect", "Which sentence is in the present perfect?", "They arrived.", "They arrive.", "They are arriving.", "They have arrived."],
+["Simple present vs. present perfect", "Which sentence is in the simple present?", "The shop will opened.", "The shop opened.", "The shop opens at 8.", "The shop has opened."],
+["Simple present vs. present perfect", "I ______ in Jimma since 2021.", "lives", "live", "have lived", "am living"],
+["Simple present vs. present perfect", "‘She has worked here for five years’ differs from ‘She works here’ because it:", "talks about the future", "connects the past to now with a length of time", "shows she no longer works here", "shows only a daily habit"],
+["Simple present vs. present perfect", "‘Ever’ is mostly used in:", "present perfect questions", "simple present habits", "future plans", "commands"],
+["Simple present vs. present perfect", "Which pair is correct?", "He play every day. / He has played today.", "He plays every day. / He has played today.", "He plays every day. / He have played today.", "He plays every day. / He has play today."],
+["Simple present vs. present perfect", "Which sentence is correct?", "I know her for years.", "I have know her for years.", "I have known her for years.", "I am knowing her since years."],
+["Simple present vs. present perfect", "Which sentence is wrong?", "She visits Mekelle every year.", "She visited Mekelle last year.", "She has visited Mekelle last year.", "She has visited Mekelle twice."],
+["Simple present vs. present perfect", "I ______ that film three times.", "see", "sees", "have seen", "am seeing"],
+["Simple present vs. present perfect", "‘Does he play?’ asks about ______; ‘Has he played?’ asks about ______.", "a rule; a plan", "the future; the past", "an experience; a habit", "a habit; an experience or result up to now"],
+["Simple present vs. present perfect", "Which signal words fit the present perfect?", "tomorrow, next week, soon, tonight", "always, usually, often, every day", "yesterday, last week, ago, in 2020", "already, yet, ever, never"],
+["Simple present vs. present perfect", "Which signal words fit the simple present?", "tomorrow, soon, next week, tonight", "already, yet, just, ever", "usually, often, every day, sometimes", "yesterday, ago, last year, in 2020"],
+["Simple present vs. present perfect", "My brother ______ in Hawassa. He has lived there since 2019.", "lives", "lived", "live", "has live"],
+["Simple present vs. present perfect", "Which sentence is correct?", "She don’t drink coffee, and she hasn’t tried it.", "She doesn’t drinks coffee, and she hasn’t tried it.", "She doesn’t drink coffee, and she haven’t tried it.", "She doesn’t drink coffee, and she hasn’t tried it."],
+["Simple present vs. present perfect", "Which sentence means the situation began in the past and is still true now?", "I worked here since March.", "I have worked here since March.", "I work here yesterday.", "I worked here in March."],
+["Conditionals", "If it rains, we ______ at home.", "staying", "will stay", "would stay", "stayed"],
+["Conditionals", "If you heat ice, it ______.", "melted", "melts", "would melt", "melting"],
+["Conditionals", "If I ______ time, I will help you.", "would have", "will have", "have", "had"],
+["Conditionals", "If she studies hard, she ______ the exam.", "has passed", "passed", "will pass", "would pass"],
+["Conditionals", "The first conditional is: if + ______, will + base verb.", "would + verb", "past perfect", "simple past", "simple present"],
+["Conditionals", "If I were you, I ______ study more.", "can", "will", "would", "am"],
+["Conditionals", "If you don’t hurry, you ______ the bus.", "missed", "would miss", "missing", "will miss"],
+["Conditionals", "If it ______ tomorrow, we will go to the park.", "doesn’t rain", "won’t rain", "wouldn’t rain", "didn’t rain"],
+["Conditionals", "The zero conditional is used for:", "impossible past situations", "general truths and facts", "only future plans", "unreal present situations"],
+["Conditionals", "If he ______ hungry, he eats.", "would be", "were to be", "will be", "is"],
+["Conditionals", "If I won the lottery, I ______ a house.", "buy", "will buy", "would buy", "bought"],
+["Conditionals", "If I ______ rich, I would travel the world.", "am", "were", "will be", "would be"],
+["Conditionals", "If she had studied, she ______ the test.", "will pass", "would have passed", "had passed", "would pass"],
+["Conditionals", "If you ______ water to 100°C, it boils.", "will heat", "heat", "would heat", "heated"],
+["Conditionals", "The second conditional is:", "if + past perfect, would have + V3", "if + would, will + base verb", "if + simple past, would + base verb", "if + simple present, will + base verb"],
+["Conditionals", "The third conditional is:", "if + will, would + V3", "if + simple past, would + base verb", "if + past perfect, would have + V3", "if + simple present, will + base verb"],
+["Conditionals", "If it ______ yesterday, we would have stayed at home.", "had rained", "would rain", "rained", "rains"],
+["Conditionals", "Unless you hurry, you ______ late.", "won’t be", "weren’t", "will be", "wouldn’t be"],
+["Conditionals", "‘If he comes, tell him I’m out.’ is a ______ conditional.", "first", "second", "third", "mixed"],
+["Conditionals", "Which sentence is a real, possible situation?", "If I saw him, I would tell him.", "If I see him, I will tell him.", "If I had seen him, I would have told him.", "If I were him, I would tell him."],
+["Conditionals", "If I ______ you, I would apologise.", "am", "had been", "were", "would be"],
+["Conditionals", "If they ______ earlier, they wouldn’t have missed the train.", "left", "had left", "would leave", "leave"],
+["Conditionals", "If I had studied medicine, I ______ a doctor now.", "would be", "will be", "would being", "am"],
+["Conditionals", "Which sentence is correct?", "If I would have known, I would have told you.", "If I knew, I would have told you.", "If I had known, I would have told you.", "If I have known, I would have told you."],
+["Conditionals", "Which sentence is incorrect?", "If she came, I would go.", "If she had come, I would have gone.", "If she comes, I will go.", "If she will come, I will go."],
+["Conditionals", "Which sentence is a zero conditional?", "If you mixed red and blue, you would get purple.", "If you mix red and blue, you get purple.", "If you mix red and blue, you would get purple.", "If you had mixed red and blue, you would have got purple."],
+["Conditionals", "‘Were I rich, I would help them’ means:", "If I am rich, I will help them.", "If I weren’t rich, I would help them.", "If I had been rich, I would have helped them.", "If I were rich, I would help them."],
+["Conditionals", "‘Had I known, I would have called’ means:", "I knew and I called.", "If I knew, I would call.", "If I had known, I would have called.", "If I know, I will call."],
+["Conditionals", "‘Unless you study, you will fail’ means:", "If you didn’t study, you will fail.", "If you don’t study, you will fail.", "If you study, you will fail.", "If you don’t study, you would fail."],
+["Conditionals", "If it ______ so cold, I would go out now.", "won’t be", "doesn’t be", "isn’t", "weren’t"]
+];
+// difficulty of each question above (E=Easy, M=Medium, H=Difficult). The correct answers are NOT stored in this file.
+var LV=["E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"];
+
+var $=function(i){return document.getElementById(i)};
+var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var sb=null;
+try{if(SUPABASE_URL.indexOf("http")===0)sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function cls(p){return p>=STRONG?"good":(p<WEAK?"weak":"mid")}
+
+// ---------- routing: add #teacher to the link for the dashboard ----------
+function route(){var t=location.hash==="#teacher";$("student").classList.toggle("hide",t);$("teacher").classList.toggle("hide",!t);if(t)initTeacher()}
+window.addEventListener("hashchange",route);route();
+
+// ---------- STUDENT ----------
+var PER_GROUP=3; // questions per topic per level. 3 = 45 questions per student, 10 = all 150
+var LVN={E:"Easy",M:"Medium",H:"Difficult"};
+var pool={};Q.forEach(function(q,i){var k=q[0]+"|"+LV[i];(pool[k]=pool[k]||[]).push(i)});
+var chosen=[];Object.keys(pool).forEach(function(k){chosen=chosen.concat(shuf(pool[k]).slice(0,PER_GROUP))});
+chosen=shuf(chosen).sort(function(a,b){return "EMH".indexOf(LV[a])-"EMH".indexOf(LV[b])});
+var S=chosen.map(function(i){var q=Q[i];return {i:i,topic:q[0],lv:LV[i],q:q[1],opts:shuf(q.slice(2)),pick:null}});
+$("sub").textContent="Grammar exam · "+S.length+" multiple-choice questions · easy to difficult";
+var name="";
+function render(){
+  var h="";
+  S.forEach(function(s,i){
+    h+='<div class="card" id="c'+i+'"><p class="q"><span>'+(i+1)+'/'+S.length+'</span> '+esc(s.q)+'</p>';
+    s.opts.forEach(function(o,k){h+='<label class="o"><input type="radio" name="q'+i+'" value="'+k+'"> <span>'+esc(o)+'</span></label>'});
+    h+='</div>';
+  });
+  $("qs").innerHTML=h;
+  $("qs").addEventListener("change",function(e){
+    var m=/^q(\d+)$/.exec(e.target.name||"");if(!m)return;
+    var i=+m[1];S[i].pick=+e.target.value;
+    var ls=document.querySelectorAll("#c"+i+" label");
+    for(var k=0;k<ls.length;k++)ls[k].className="o"+(k===S[i].pick?" sel":"");
+    bar();
+  });
+  bar();
+}
+function bar(){var n=S.filter(function(s){return s.pick!==null}).length;$("bar").textContent=name+" · Answered "+n+" of "+S.length}
+$("go").onclick=function(){
+  var v=$("nm").value.trim();
+  if(!v){$("nmErr").classList.remove("hide");return}
+  name=v;$("start").classList.add("hide");$("quote").classList.add("hide");$("papers").classList.add("hide");$("exam").classList.remove("hide");render();window.scrollTo(0,0);
+};
+var warned=false,sent=false;
+$("submit").onclick=function(){
+  var miss=[];S.forEach(function(s,i){if(s.pick===null)miss.push(i+1)});
+  if(miss.length&&!warned){
+    warned=true;
+    $("subErr").textContent="You left "+miss.length+" unanswered (Q"+miss.slice(0,8).join(", Q")+(miss.length>8?"…":"")+"). Tap Submit again to finish anyway.";
+    $("subErr").classList.remove("hide");return;
+  }
+  finish();
+};
+function finish(){
+  if(sent)return;sent=true;
+  var payload=S.map(function(s){return {i:s.i,p:s.pick===null?null:s.opts[s.pick]}});
+  $("exam").classList.add("hide");$("res").classList.remove("hide");window.scrollTo(0,0);
+  $("resMsg").textContent="Submitting your examination…";$("retry").classList.add("hide");
+  if(!sb){return fail()}
+  // Marking happens on the server (Supabase function submit_exam). The answer key is never sent to the browser.
+  sb.rpc("submit_exam",{p_name:name,p_answers:payload}).then(function(r){
+    if(r.error)return fail();
+    $("resMsg").textContent="Your examination has been submitted successfully.";
+  },fail);
+}
+function fail(){sent=false;$("resMsg").textContent="Your examination could not be submitted. Check your internet, then tap Try again. Do not close this page.";$("retry").classList.remove("hide")}
+$("retry").onclick=finish;
+
+
+// ---------- DAILY ACADEMIC QUOTE (changes every day, cycles through the list) ----------
+var QUOTES=[["Education is the most powerful weapon which you can use to change the world.", "Nelson Mandela"], ["The roots of education are bitter, but the fruit is sweet.", "Aristotle"], ["An investment in knowledge pays the best interest.", "Benjamin Franklin"], ["The beautiful thing about learning is that nobody can take it away from you.", "B. B. King"], ["Genius is one percent inspiration and ninety-nine percent perspiration.", "Thomas Edison"], ["It does not matter how slowly you go as long as you do not stop.", "Confucius"], ["Education is what remains after one has forgotten what one has learned in school.", "Albert Einstein"], ["I have no special talent. I am only passionately curious.", "Albert Einstein"], ["Learning never exhausts the mind.", "Leonardo da Vinci"], ["Develop a passion for learning. If you do, you will never cease to grow.", "Anthony J. D’Angelo"], ["Education is the passport to the future, for tomorrow belongs to those who prepare for it today.", "Malcolm X"], ["Intelligence plus character – that is the goal of true education.", "Martin Luther King Jr."], ["One child, one teacher, one book, one pen can change the world.", "Malala Yousafzai"], ["Education is the key to unlock the golden door of freedom.", "George Washington Carver"], ["Knowledge is power.", "Francis Bacon"], ["Self-education is, I firmly believe, the only kind of education there is.", "Isaac Asimov"], ["Be a student as long as you still have something to learn.", "Henry L. Doherty"], ["The only person who is educated is the one who has learned how to learn and change.", "Carl Rogers"], ["Anyone who stops learning is old, whether at twenty or eighty.", "Henry Ford"], ["What we learn with pleasure we never forget.", "Alfred Mercier"], ["There are no shortcuts to any place worth going.", "Beverly Sills"], ["We are what we repeatedly do. Excellence, then, is not an act, but a habit.", "Will Durant"], ["Education is simply the soul of a society as it passes from one generation to another.", "G. K. Chesterton"], ["Research is formalized curiosity. It is poking and prying with a purpose.", "Zora Neale Hurston"], ["Failure is simply the opportunity to begin again, this time more intelligently.", "Henry Ford"], ["Learning is not attained by chance; it must be sought for with ardor and diligence.", "Abigail Adams"], ["Education is the great engine of personal development.", "Nelson Mandela"], ["Wisdom begins in wonder.", "Socrates"], ["Perseverance is not a long race; it is many short races one after the other.", "Walter Elliot"], ["Discipline is the bridge between goals and accomplishment.", "Jim Rohn"], ["The function of education is to teach one to think intensively and to think critically.", "Martin Luther King Jr."], ["He who opens a school door, closes a prison.", "Victor Hugo"], ["The purpose of education is to replace an empty mind with an open one.", "Malcolm Forbes"], ["Knowledge is of no value unless you put it into practice.", "Anton Chekhov"], ["Success is the sum of small efforts, repeated day in and day out.", "Robert Collier"], ["The mind is not a vessel to be filled, but a fire to be kindled.", "Plutarch"]];
+function showQuote(){var d=new Date(),day=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5),q=QUOTES[day%QUOTES.length];
+  $("qt").textContent="\u201C"+q[0]+"\u201D";$("qa").textContent=q[1]?"\u2014 "+q[1]:""}
+showQuote();
+
+// ---------- UNIVERSITY PAST PAPERS (PDFs in the "papers" folder of this repository) ----------
+// File name format:  Course__Paper-title__Year.pdf   e.g. Anatomy__Final-exam__2023.pdf
+var GH_OWNER="safwanjeylan6-lgtm",GH_REPO="grammar-exam";
+if(/\.github\.io$/.test(location.hostname)){GH_OWNER=location.hostname.split(".")[0];GH_REPO=location.pathname.split("/")[1]||GH_REPO}
+var papers=[];
+function nice(t){return String(t).replace(/[-_]+/g," ").replace(/\s+/g," ").trim()}
+function parsePaper(f){var base=f.replace(/\.pdf$/i,""),p=base.split("__"),y=base.match(/(19|20)\d\d/);
+  if(p.length>=3)return {course:nice(p[0])||"General",title:nice(p[1])||nice(base),year:nice(p[2]),file:f};
+  return {course:"General",title:nice(base),year:y?y[0]:"",file:f}}
+function setPapers(names){papers=names.filter(function(n){return /\.pdf$/i.test(n)}).map(parsePaper);drawPapers()}
+function loadPapers(){
+  try{var c=JSON.parse(sessionStorage.getItem("gp_papers")||"null");if(c&&Date.now()-c.t<600000){setPapers(c.d);return}}catch(e){}
+  function done(n){try{sessionStorage.setItem("gp_papers",JSON.stringify({t:Date.now(),d:n}))}catch(e){}setPapers(n)}
+  function fallback(){ // if GitHub's listing is busy, use an optional papers/index.json: ["Course__Title__2023.pdf", ...]
+    fetch("papers/index.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(a){done(Array.isArray(a)?a.filter(function(x){return typeof x==="string"}):[])}).catch(function(){
+      $("plist").innerHTML='<p class="sub">Past papers could not be loaded right now. Please try again later.</p>'})}
+  fetch("https://api.github.com/repos/"+GH_OWNER+"/"+GH_REPO+"/contents/papers").then(function(r){
+    if(r.status===404)return [];if(!r.ok)throw 0;return r.json()}).then(function(a){
+    done((Array.isArray(a)?a:[]).filter(function(x){return x.type==="file"}).map(function(x){return x.name}))}).catch(fallback)
+}
+function drawPapers(){
+  var cs=[];papers.forEach(function(p){if(cs.indexOf(p.course)<0)cs.push(p.course)});cs.sort();
+  var sel=$("pcourse"),cur=sel.value;
+  sel.innerHTML='<option value="">All courses</option>'+cs.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>'}).join("");
+  if(cs.indexOf(cur)>=0)sel.value=cur;
+  filterPapers();
+}
+function filterPapers(){
+  var empty=!papers.length;$("pcourse").classList.toggle("hide",empty);$("psearch").classList.toggle("hide",empty);
+  if(empty){$("plist").innerHTML='<p class="sub">\uD83D\uDCDA No past papers have been uploaded yet. Please check back soon.</p>';return}
+  var c=$("pcourse").value,q=$("psearch").value.trim().toLowerCase();
+  var l=papers.filter(function(p){return (!c||p.course===c)&&(!q||(p.course+" "+p.title+" "+p.year).toLowerCase().indexOf(q)>=0)})
+    .sort(function(a,b){return a.course.localeCompare(b.course)||String(b.year).localeCompare(String(a.year))||a.title.localeCompare(b.title)});
+  $("plist").innerHTML=l.length?l.map(function(p){var u=esc("papers/"+encodeURIComponent(p.file));
+    return '<div class="pp"><div><strong>'+esc(p.title)+'</strong><div class="sub" style="margin:0">'+esc(p.course)+(p.year?' \u00B7 '+esc(p.year):'')+'</div></div><div class="pa"><a class="lb" href="'+u+'" target="_blank" rel="noopener">Open</a><a class="lb fill" href="'+u+'" download>Download</a></div></div>'}).join("")
+    :'<p class="sub">No papers match your search.</p>';
+}
+$("pcourse").onchange=filterPapers;$("psearch").oninput=filterPapers;
+loadPapers();
+
+// ---------- TEACHER ----------
+var rows=[],tInit=false,K={};
+function initTeacher(){
+  if(tInit)return;tInit=true;
+  if(!sb){$("liErr").textContent="Supabase is not set up yet. Paste your URL and key at the top of the script.";$("liErr").classList.remove("hide");return}
+  sb.auth.getSession().then(function(r){if(r.data&&r.data.session)load()});
+  $("li").onclick=function(){
+    sb.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value}).then(function(r){
+      if(r.error){$("liErr").textContent="Login failed: "+r.error.message;$("liErr").classList.remove("hide")}else load();
+    });
+  };
+  $("out").onclick=function(){sb.auth.signOut().then(function(){location.reload()})};
+  $("csv").onclick=csv;
+}
+function load(){
+  Promise.all([sb.from("exam_results").select("*").order("created_at",{ascending:false}),sb.from("exam_key").select("idx,correct")]).then(function(rs){
+    var r=rs[0];
+    if(r.error){$("liErr").textContent="Could not load results: "+r.error.message;$("liErr").classList.remove("hide");return}
+    K={};(rs[1].data||[]).forEach(function(k){K[k.idx]=k.correct});
+    rows=r.data||[];$("login").classList.add("hide");$("dash").classList.remove("hide");draw();
+  });
+}
+function pct(c,t){return t?Math.round(c/t*100):0}
+function draw(){
+  var n=rows.length,avg=n?Math.round(rows.reduce(function(a,x){return a+pct(x.score,x.total)},0)/n):0;
+  $("summary").innerHTML='<strong>'+n+'</strong> student'+(n===1?'':'s')+' took the exam · class average <strong>'+avg+'%</strong>';
+  // topics
+  var T={};rows.forEach(function(x){Object.keys(x.topic_scores||{}).forEach(function(k){var v=x.topic_scores[k];T[k]=T[k]||{c:0,t:0};T[k].c+=v.c;T[k].t+=v.t})});
+  $("topics").innerHTML=Object.keys(T).map(function(k){var p=pct(T[k].c,T[k].t);return '<p><span class="pill '+cls(p)+'">'+p+'%</span> '+esc(k)+(p<WEAK?' — <strong>reteach this</strong>':'')+'</p>'}).join("")||'<p class="sub">No results yet.</p>';
+  // hardest
+  var M={};rows.forEach(function(x){(x.answers||[]).forEach(function(a){M[a.i]=M[a.i]||{w:0,t:0};M[a.i].t++;if(!a.ok)M[a.i].w++})});
+  var hard=Object.keys(M).map(function(i){return {i:+i,w:M[i].w,t:M[i].t}}).sort(function(a,b){return b.w/b.t-a.w/a.t}).slice(0,5);
+  $("hard").innerHTML=hard.map(function(h){return '<p><span class="pill weak">'+pct(h.w,h.t)+'% missed</span> Q'+(h.i+1)+': '+esc(Q[h.i][1])+' <span class="sub">('+esc(Q[h.i][0])+', '+LVN[LV[h.i]]+')</span></p>'}).join("")||'<p class="sub">No results yet.</p>';
+  // table
+  var th='<tr><th>Name</th><th>Score</th><th>%</th><th>Weakest topic</th><th>Time</th></tr>';
+  $("tbl").innerHTML=th+rows.map(function(x,k){
+    var p=pct(x.score,x.total),ts=x.topic_scores||{},wk="",wp=101;
+    Object.keys(ts).forEach(function(t){var q=pct(ts[t].c,ts[t].t);if(q<wp){wp=q;wk=t}});
+    return '<tr class="row" data-k="'+k+'"><td>'+esc(x.student_name)+'</td><td>'+x.score+'/'+x.total+'</td><td><span class="pill '+cls(p)+'">'+p+'%</span></td><td>'+(wk?esc(wk)+' ('+wp+'%)':'-')+'</td><td>'+new Date(x.created_at).toLocaleString()+'</td></tr><tr class="hide" id="d'+k+'"><td colspan="5" class="det"></td></tr>';
+  }).join("");
+  $("tbl").onclick=function(e){
+    var tr=e.target.closest("tr.row");if(!tr)return;
+    var k=tr.dataset.k,d=$("d"+k);
+    if(d.classList.contains("hide")){
+      var x=rows[k],ts=x.topic_scores||{};
+      var h=Object.keys(ts).map(function(t){var p=pct(ts[t].c,ts[t].t);return '<span class="pill '+cls(p)+'">'+p+'%</span> '+esc(t)+' ('+ts[t].c+'/'+ts[t].t+')'}).join("<br>");
+      var w=(x.answers||[]).filter(function(a){return !a.ok}).map(function(a){return '<br>Q'+(a.i+1)+': '+esc(Q[a.i][1])+' → chose “'+esc(a.p===null?"no answer":a.p)+'”, correct: “'+esc(K[a.i]===undefined?"(key unavailable)":K[a.i])+'”'}).join("");
+      d.firstChild.innerHTML=h+'<br><br><strong>Mistakes:</strong>'+(w||' none')+'';
+      d.classList.remove("hide");
+    }else d.classList.add("hide");
+  };
+}
+function csv(){
+  var tp=Object.keys(rows.reduce(function(a,x){Object.keys(x.topic_scores||{}).forEach(function(k){a[k]=1});return a},{}));
+  var out=[["Name","Score","Total","Percent"].concat(tp.map(function(t){return t+" %"})).concat(["Time"])];
+  rows.forEach(function(x){out.push([x.student_name,x.score,x.total,pct(x.score,x.total)].concat(tp.map(function(t){var v=(x.topic_scores||{})[t];return v?pct(v.c,v.t):""})).concat([x.created_at]))});
+  var s=out.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([s],{type:"text/csv"}));a.download="exam-results.csv";a.click();
+}
+</script>
+</body>
+</html>
